@@ -1,4 +1,4 @@
-package yeelight
+package mtglight
 
 const version = "0.0.0"
 

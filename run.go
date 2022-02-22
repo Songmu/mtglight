@@ -1,4 +1,4 @@
-package yeelight
+package mtglight
 
 import (
 	"context"
@@ -6,7 +6,21 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
+
+	"github.com/Songmu/retry"
 )
+
+type retryer struct {
+	err error
+}
+
+func (rt *retryer) run(f func() error) {
+	if rt.err != nil {
+		return
+	}
+	rt.err = retry.Retry(3, time.Second, f)
+}
 
 const cmdName = "yeelight"
 
@@ -28,13 +42,22 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 	}
 	on := fs.Arg(0) == "on"
 
-	yee, err := Discover()
-	if err != nil {
+	var yee *Yeelight
+	if err := retry.Retry(3, time.Second, func() error {
+		var err error
+		yee, err = Discover()
+		return err
+	}); err != nil {
 		return err
 	}
-	yee.SetPower(on)
 
-	return nil
+	r := &retryer{}
+	r.run(func() error { return yee.Power(on) })
+	if on {
+		r.run(func() error { return yee.RGB(0x993333) })
+		r.run(func() error { return yee.Brightness(1) })
+	}
+	return r.err
 }
 
 func printVersion(out io.Writer) error {

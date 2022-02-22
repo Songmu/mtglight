@@ -1,6 +1,6 @@
 // copied from github.com/avarabyeu/yeelight@f75f5442024315c1ea9d838d7569304226c69064
 
-package yeelight
+package mtglight
 
 import (
 	"bufio"
@@ -147,15 +147,29 @@ func (y *Yeelight) GetProp(values ...interface{}) ([]interface{}, error) {
 	return r.Result, nil
 }
 
-//SetPower is used to switch on or off the smart LED (software managed on/off).
-func (y *Yeelight) SetPower(on bool) error {
-	var status string
-	if on {
-		status = "on"
-	} else {
+// Power is used to switch on or off the smart LED (software managed on/off).
+func (y *Yeelight) Power(on bool) error {
+	status := "on"
+	if !on {
 		status = "off"
 	}
 	_, err := y.ExecuteCommand("set_power", status)
+	return err
+}
+
+func (y *Yeelight) RGB(rgb int) error {
+	if rgb < 0 || rgb > 0xffffff {
+		return fmt.Errorf("out of RGB range(0-0xffffff): %d", rgb)
+	}
+	_, err := y.ExecuteCommand("set_rgb", rgb, "sudden", 0)
+	return err
+}
+
+func (y *Yeelight) Brightness(brightness int) error {
+	if brightness < 1 || brightness > 100 {
+		return fmt.Errorf("out of brightness range (1-100): %d", brightness)
+	}
+	_, err := y.ExecuteCommand("set_bright", brightness, "sudden", 0)
 	return err
 }
 
