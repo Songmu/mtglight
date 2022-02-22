@@ -19,11 +19,11 @@ test:
 
 .PHONY: build
 build:
-	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/yeelight
+	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/mtglight
 
 .PHONY: install
 install:
-	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/yeelight
+	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/mtglight
 
 .PHONY: release
 release: devel-deps
