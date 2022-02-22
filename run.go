@@ -31,17 +31,28 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		fmt.Sprintf("%s (v%s rev:%s)", cmdName, version, revision), flag.ContinueOnError)
 	fs.SetOutput(errStream)
 	ver := fs.Bool("version", false, "display version")
+	var (
+		device, event string
+		pid           int
+	)
+	fs.StringVar(&device, "d", "", "device camera/microphone")
+	fs.StringVar(&event, "event", "", "event on/off")
+	fs.IntVar(&pid, "process", 0, "process ID")
+
 	if err := fs.Parse(argv); err != nil {
 		return err
 	}
 	if *ver {
 		return printVersion(outStream)
 	}
-	if fs.NArg() < 1 {
-		return fmt.Errorf("no option specified")
+	if device != "camera" {
+		return nil
 	}
-	on := fs.Arg(0) == "on"
+	if event == "" {
+		return fmt.Errorf("no events specified")
+	}
 
+	on := event == "on"
 	var yee *Yeelight
 	if err := retry.Retry(3, time.Second, func() error {
 		var err error
