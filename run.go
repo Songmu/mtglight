@@ -35,7 +35,7 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		device, event string
 		pid           int
 	)
-	fs.StringVar(&device, "d", "", "device camera/microphone")
+	fs.StringVar(&device, "device", "", "device camera/microphone")
 	fs.StringVar(&event, "event", "", "event on/off")
 	fs.IntVar(&pid, "process", 0, "process ID")
 
