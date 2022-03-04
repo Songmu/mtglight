@@ -65,7 +65,7 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 	r := &retryer{}
 	r.run(func() error { return yee.Power(on) })
 	if on {
-		r.run(func() error { return yee.RGB(0x993333) })
+		r.run(func() error { return yee.RGB(0x382eff) })
 		r.run(func() error { return yee.Brightness(1) })
 	}
 	return r.err
