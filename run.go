@@ -32,12 +32,15 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 	fs.SetOutput(errStream)
 	ver := fs.Bool("version", false, "display version")
 	var (
-		device, event string
-		pid           int
+		device, event    string
+		pid, activeCount int
 	)
+	// for OverSight
+	// ref. https://objective-see.org/products/oversight.html
 	fs.StringVar(&device, "device", "", "device camera/microphone")
 	fs.StringVar(&event, "event", "", "event on/off")
 	fs.IntVar(&pid, "process", 0, "process ID")
+	fs.IntVar(&activeCount, "activeCount", 0, "active count")
 
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -63,10 +66,12 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 	}
 
 	r := &retryer{}
-	r.run(func() error { return yee.Power(on) })
+	if on || activeCount == 0 {
+		r.run(func() error { return yee.Power(on) })
+	}
 	if on {
-		r.run(func() error { return yee.RGB(0x382eff) })
-		r.run(func() error { return yee.Brightness(1) })
+		r.run(func() error { return yee.RGB(0xff0000) })
+		r.run(func() error { return yee.Brightness(99) })
 	}
 	return r.err
 }
