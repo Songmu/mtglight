@@ -1,6 +1,6 @@
 module github.com/Songmu/mtglight
 
-go 1.17
+go 1.22.5
 
 require (
 	github.com/Songmu/retry v0.1.0
