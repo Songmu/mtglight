@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	"github.com/Songmu/retry"
@@ -39,8 +40,8 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 	// ref. https://objective-see.org/products/oversight.html
 	fs.StringVar(&device, "device", "", "device camera/microphone")
 	fs.StringVar(&event, "event", "", "event on/off")
-	fs.IntVar(&pid, "process", 0, "process ID")
-	fs.IntVar(&activeCount, "activeCount", 0, "active count")
+	fs.IntVar(&pid, "process", 0, "process ID (note: when off, the process number is empty)")
+	fs.IntVar(&activeCount, "activeCount", 0, "active count (total count of cameras and microphones combined)")
 
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -74,6 +75,11 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		r.run(func() error { return yee.Brightness(99) })
 	}
 	return r.err
+}
+
+func isProcessActive(pid int) bool {
+	_, err := os.FindProcess(pid)
+	return err == nil
 }
 
 func printVersion(out io.Writer) error {
