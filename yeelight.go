@@ -65,7 +65,7 @@ type (
 	}
 )
 
-//Discover discovers device in local network via ssdp
+// Discover discovers device in local network via ssdp
 func Discover() (*Yeelight, error) {
 	var err error
 
@@ -87,7 +87,7 @@ func Discover() (*Yeelight, error) {
 
 }
 
-//New creates new device instance for address provided
+// New creates new device instance for address provided
 func New(addr string) *Yeelight {
 	return &Yeelight{
 		addr: addr,
@@ -186,12 +186,12 @@ func (y *Yeelight) newCommand(name string, params []interface{}) *Command {
 	}
 }
 
-//ExecuteCommand executes command with provided parameters
+// ExecuteCommand executes command with provided parameters
 func (y *Yeelight) ExecuteCommand(name string, params ...interface{}) (*CommandResult, error) {
 	return y.execute(y.newCommand(name, params))
 }
 
-//ExecuteCommand executes command
+// ExecuteCommand executes command
 func (y *Yeelight) execute(cmd *Command) (*CommandResult, error) {
 
 	conn, err := net.Dial("tcp", y.addr)
@@ -221,7 +221,7 @@ func (y *Yeelight) execute(cmd *Command) (*CommandResult, error) {
 	return &rs, nil
 }
 
-//parseAddr parses address from ssdp response
+// parseAddr parses address from ssdp response
 func parseAddr(msg string) string {
 	if strings.HasSuffix(msg, crlf) {
 		msg = msg + crlf
@@ -235,7 +235,7 @@ func parseAddr(msg string) string {
 	return strings.TrimPrefix(resp.Header.Get("LOCATION"), "yeelight://")
 }
 
-//closeConnection closes network connection
+// closeConnection closes network connection
 func closeConnection(c net.Conn) {
 	if nil != c {
 		c.Close()

@@ -70,7 +70,7 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		r.run(func() error { return yee.Power(on) })
 	}
 	if on {
-		r.run(func() error { return yee.RGB(0xff0000) })
+		r.run(func() error { return yee.RGB(0xffff00) })
 		r.run(func() error { return yee.Brightness(99) })
 	}
 	return r.err
