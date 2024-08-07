@@ -25,7 +25,7 @@ func (rt *retryer) run(f func() error) {
 const cmdName = "yeelight"
 
 // Run the yeelight
-func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) (err error) {
+func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) error {
 	log.SetOutput(errStream)
 	fs := flag.NewFlagSet(
 		fmt.Sprintf("%s (v%s rev:%s)", cmdName, version, revision), flag.ContinueOnError)
@@ -40,7 +40,7 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) (er
 	fs.StringVar(&device, "device", "", "device camera/microphone")
 	fs.StringVar(&event, "event", "", "event on/off")
 	fs.IntVar(&pid, "process", -1, "process ID (note: when off, the process number is empty)")
-	fs.IntVar(&activeCount, "activeCount", 0, "active count (total count of cameras and microphones combined)")
+	fs.IntVar(&activeCount, "activeCount", -1, "active count (total count of cameras and microphones combined)")
 
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -59,21 +59,20 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) (er
 
 	on := event == "on"
 	var yee *Yeelight
-	if err := retry.Retry(3, time.Second, func() error {
+	r := &retryer{}
+	r.run(func() error {
 		var err error
 		yee, err = Discover()
 		return err
-	}); err != nil {
-		return err
-	}
-
-	r := &retryer{}
-	if on || activeCount == 0 {
-		r.run(func() error { return yee.Power(on) })
-	}
-	if on {
-		r.run(func() error { return yee.RGB(0xffff00) })
-		r.run(func() error { return yee.Brightness(99) })
+	})
+	if yee != nil {
+		if on || activeCount == 0 {
+			r.run(func() error { return yee.Power(on) })
+		}
+		if on {
+			r.run(func() error { return yee.RGB(0xffff00) })
+			r.run(func() error { return yee.Brightness(99) })
+		}
 	}
 	return r.err
 }
