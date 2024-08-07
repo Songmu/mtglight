@@ -48,7 +48,9 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) (er
 	if *ver {
 		return printVersion(outStream)
 	}
-	if device != "camera" {
+
+	// Turns off light if activeCount is 0, even if the device is microphone
+	if device != "camera" && activeCount != 0 {
 		return nil
 	}
 	if event == "" {
