@@ -1,4 +1,5 @@
 // copied from github.com/avarabyeu/yeelight@f75f5442024315c1ea9d838d7569304226c69064
+// and modified to add the other functions to control the yeelight
 
 package mtglight
 

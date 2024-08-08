@@ -22,7 +22,7 @@ func (rt *retryer) run(f func() error) {
 	rt.err = retry.Retry(3, time.Second, f)
 }
 
-const cmdName = "yeelight"
+const cmdName = "mtglight"
 
 // Run the yeelight
 func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) error {
@@ -31,16 +31,20 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		fmt.Sprintf("%s (v%s rev:%s)", cmdName, version, revision), flag.ContinueOnError)
 	fs.SetOutput(errStream)
 	ver := fs.Bool("version", false, "display version")
+
+	// Command line flags passed from overSight
+	// ref. https://objective-see.org/products/oversight.html
 	var (
 		device, event    string
 		pid, activeCount int
 	)
-	// for OverSight
-	// ref. https://objective-see.org/products/oversight.html
-	fs.StringVar(&device, "device", "", "device camera/microphone")
-	fs.StringVar(&event, "event", "", "event on/off")
-	fs.IntVar(&pid, "process", -1, "process ID (note: when off, the process number is empty)")
-	fs.IntVar(&activeCount, "activeCount", -1, "active count (total count of cameras and microphones combined)")
+	fs.StringVar(&device, "device", "", "device: camera/microphone")
+	fs.StringVar(&event, "event", "", "event: on/off")
+	// NOTE: This process ID is not very useful. It is not an online meeting process but a device
+	// management process above it. So, it is impossible to determine whether a meeting is in session
+	// by checking for the existence of this process.
+	fs.IntVar(&pid, "process", -1, "process ID: (when off, the process number is empty)")
+	fs.IntVar(&activeCount, "activeCount", -1, "active count: (total count of cameras and microphones combined)")
 
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -49,15 +53,25 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		return printVersion(outStream)
 	}
 
-	// Turns off light if activeCount is 0, even if the device is microphone
-	if device != "camera" && activeCount != 0 {
-		return nil
-	}
 	if event == "" {
 		return fmt.Errorf("no events specified")
 	}
-
 	on := event == "on"
+
+	// Manipulate the light when the camera is turned on or when the activeCount reaches 0.
+	// The reason for not operating the camera when it is off is that even if one camera is turned off,
+	// it may still be being used on other screens, so we use activeCount to determine if the camera is
+	// off. Also, not that activeCount is the sum of both cameras and microphones, and the device flag
+	// might be specified as a microphone when it reaches 0. Apropos, when activeCount is 0, the event
+	// is always off.
+	// Either way, when activeCount reaches 0, it shows the online meeting is inevitably over,
+	// so we'll turn off the light.
+	// Fortunately, it prevents the lights from going out even when we temporarily turn off the
+	// camera during a meeting.
+	if !((on && device == "camera") || activeCount == 0) {
+		return nil
+	}
+
 	var yee *Yeelight
 	r := &retryer{}
 	r.run(func() error {
@@ -66,9 +80,7 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		return err
 	})
 	if yee != nil {
-		if on || activeCount == 0 {
-			r.run(func() error { return yee.Power(on) })
-		}
+		r.run(func() error { return yee.Power(on) })
 		if on {
 			r.run(func() error { return yee.RGB(0xffff00) })
 			r.run(func() error { return yee.Brightness(99) })
