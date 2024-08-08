@@ -11,17 +11,6 @@ import (
 	"github.com/Songmu/retry"
 )
 
-type retryer struct {
-	err error
-}
-
-func (rt *retryer) run(f func() error) {
-	if rt.err != nil {
-		return
-	}
-	rt.err = retry.Retry(3, time.Second, f)
-}
-
 const cmdName = "mtglight"
 
 // Run the yeelight
@@ -72,21 +61,44 @@ func Run(ctx context.Context, argv []string, outStream, errStream io.Writer) err
 		return nil
 	}
 
-	var yee *Yeelight
-	r := &retryer{}
-	r.run(func() error {
+	return newYeeLight().Power(on)
+}
+
+type retryer struct {
+	err error
+}
+
+func (rt *retryer) run(f func() error) {
+	if rt.err != nil {
+		return
+	}
+	rt.err = retry.Retry(3, time.Second, f)
+}
+
+type yeeLight struct {
+	r *retryer
+	y *Yeelight
+}
+
+func newYeeLight() *yeeLight {
+	y := &yeeLight{
+		r: &retryer{},
+	}
+	y.r.run(func() error {
 		var err error
-		yee, err = Discover()
+		y.y, err = Discover()
 		return err
 	})
-	if yee != nil {
-		r.run(func() error { return yee.Power(on) })
-		if on {
-			r.run(func() error { return yee.RGB(0xffff00) })
-			r.run(func() error { return yee.Brightness(99) })
-		}
+	return y
+}
+
+func (y *yeeLight) Power(on bool) error {
+	y.r.run(func() error { return y.y.Power(on) })
+	if on {
+		y.r.run(func() error { return y.y.RGB(0xffff00) })
+		y.r.run(func() error { return y.y.Brightness(99) })
 	}
-	return r.err
+	return y.r.err
 }
 
 func printVersion(out io.Writer) error {
