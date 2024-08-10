@@ -1,4 +1,4 @@
-yeelight
+mtglight
 =======
 
 [![Test Status](https://github.com/Songmu/mtglight/workflows/test/badge.svg?branch=main)][actions]
@@ -11,15 +11,7 @@ yeelight
 [license]: https://github.com/Songmu/mtglight/blob/main/LICENSE
 [PkgGoDev]: https://pkg.go.dev/github.com/Songmu/mtglight
 
-yeelight short description
-
-## Synopsis
-
-```go
-// simple usage here
-```
-
-## Description
+The mtglight turn on and off the [Yeelight](https://yeelight.com/) bulb when the online meeting starts and ends in cooperation with the [OverSight](https://objective-see.org/products/oversight.html).
 
 ## Installation
 
