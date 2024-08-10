@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net"
 	"net/http"
@@ -82,8 +83,11 @@ func Discover() (*Yeelight, error) {
 		return nil, errors.New("no devices found")
 	}
 	rs := rsBuf[0:size]
-	addr := parseAddr(string(rs))
-	fmt.Printf("Device with ip %s found\n", addr)
+	addr, err := parseAddr(string(rs))
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Device with ip %s found\n", addr)
 	return New(addr), nil
 
 }
@@ -108,7 +112,7 @@ func (y *Yeelight) Listen() (<-chan *Notification, chan<- struct{}, error) {
 		return nil, nil, fmt.Errorf("cannot connect to %s. %s", y.addr, err)
 	}
 
-	fmt.Println("Connection established")
+	log.Println("Connection established")
 	go func(c net.Conn) {
 		//make sure connection is closed when method returns
 		defer closeConnection(conn)
@@ -122,12 +126,12 @@ func (y *Yeelight) Listen() (<-chan *Notification, chan<- struct{}, error) {
 				data, err := connReader.ReadString('\n')
 				if nil == err {
 					var rs Notification
-					fmt.Println(data)
+					log.Println(data)
 					json.Unmarshal([]byte(data), &rs)
 					select {
 					case notifCh <- &rs:
 					default:
-						fmt.Println("Channel is full")
+						log.Println("Channel is full")
 					}
 				}
 			}
@@ -223,17 +227,16 @@ func (y *Yeelight) execute(cmd *Command) (*CommandResult, error) {
 }
 
 // parseAddr parses address from ssdp response
-func parseAddr(msg string) string {
+func parseAddr(msg string) (string, error) {
 	if strings.HasSuffix(msg, crlf) {
 		msg = msg + crlf
 	}
 	resp, err := http.ReadResponse(bufio.NewReader(strings.NewReader(msg)), nil)
 	if err != nil {
-		fmt.Println(err)
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
-	return strings.TrimPrefix(resp.Header.Get("LOCATION"), "yeelight://")
+	return strings.TrimPrefix(resp.Header.Get("LOCATION"), "yeelight://"), nil
 }
 
 // closeConnection closes network connection
