@@ -26,7 +26,7 @@ The mtglight turn on and off the [Yeelight](https://yeelight.com/) bulb when the
 % wget -O - -q https://raw.githubusercontent.com/Songmu/mtglight/main/install.sh | sh -s [vX.Y.Z]
 
 # go install
-% go install github.com/Songmu/mtglight/cmd/yeelight@latest
+% go install github.com/Songmu/mtglight/cmd/mtglight@latest
 ```
 
 ## Author
