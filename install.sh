@@ -63,18 +63,18 @@ execute() {
 }
 get_binaries() {
   case "$PLATFORM" in
-    darwin/386) BINARIES="yeelight" ;;
-    darwin/amd64) BINARIES="yeelight" ;;
-    darwin/arm64) BINARIES="yeelight" ;;
-    darwin/armv6) BINARIES="yeelight" ;;
-    linux/386) BINARIES="yeelight" ;;
-    linux/amd64) BINARIES="yeelight" ;;
-    linux/arm64) BINARIES="yeelight" ;;
-    linux/armv6) BINARIES="yeelight" ;;
-    windows/386) BINARIES="yeelight" ;;
-    windows/amd64) BINARIES="yeelight" ;;
-    windows/arm64) BINARIES="yeelight" ;;
-    windows/armv6) BINARIES="yeelight" ;;
+    darwin/386) BINARIES="mtglight" ;;
+    darwin/amd64) BINARIES="mtglight" ;;
+    darwin/arm64) BINARIES="mtglight" ;;
+    darwin/armv6) BINARIES="mtglight" ;;
+    linux/386) BINARIES="mtglight" ;;
+    linux/amd64) BINARIES="mtglight" ;;
+    linux/arm64) BINARIES="mtglight" ;;
+    linux/armv6) BINARIES="mtglight" ;;
+    windows/386) BINARIES="mtglight" ;;
+    windows/amd64) BINARIES="mtglight" ;;
+    windows/arm64) BINARIES="mtglight" ;;
+    windows/armv6) BINARIES="mtglight" ;;
     *)
       log_crit "platform $PLATFORM is not supported.  Make sure this script is up-to-date and file request at https://github.com/${PREFIX}/issues/new"
       exit 1
@@ -343,10 +343,10 @@ End of functions from https://github.com/client9/shlib
 ------------------------------------------------------------------------
 EOF
 
-PROJECT_NAME="yeelight"
+PROJECT_NAME="mtglight"
 OWNER=Songmu
-REPO="yeelight"
-BINARY=yeelight
+REPO="mtglight"
+BINARY=mtglight
 FORMAT=tar.gz
 OS=$(uname_os)
 ARCH=$(uname_arch)
