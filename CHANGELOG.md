@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.2](https://github.com/Songmu/mtglight/compare/v0.0.1...v0.0.2) - 2024-08-11
+- fix installer by @Songmu in https://github.com/Songmu/mtglight/pull/10
+
 ## [v0.0.1](https://github.com/Songmu/mtglight/commits/v0.0.1) - 2024-08-10
 - Adjust flag for objective-see/OverSight by @Songmu in https://github.com/Songmu/mtglight/pull/1
 - adjust color by @Songmu in https://github.com/Songmu/mtglight/pull/2
